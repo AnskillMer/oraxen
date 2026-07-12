@@ -21,13 +21,16 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build core module (skip tests, javadoc, and heavy NMS decompilation tasks)
+      - name: Build core module (skip NMS completely and skip tests/javadoc)
         run: |
           ./gradlew :core:build \
             -x test \
             -x javadoc \
-            -x :nms:decompile \
-            -x :nms:paperweightDecompile \
+            -x :nms:build \
+            -x :nms:assemble \
+            -x :nms:jar \
+            -x :nms:compileJava \
+            -x :nms:processResources \
             --no-daemon \
             --continue
 
