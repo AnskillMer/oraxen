@@ -1,4 +1,5 @@
-name: Build Oraxen Jar
+name: Build Oraxen
+
 on:
   workflow_dispatch:
 
@@ -6,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -17,14 +18,21 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Build Paper Platform
-        run: ./gradlew :paper:assemble -x test -x javadoc
+      - name: Build core module (skip tests, javadoc, and heavy NMS decompilation tasks)
+        run: |
+          ./gradlew :core:build \
+            -x test \
+            -x javadoc \
+            -x :nms:decompile \
+            -x :nms:paperweightDecompile \
+            --no-daemon \
+            --continue
 
-      - name: Upload Artifact
+      - name: Upload built JAR
         uses: actions/upload-artifact@v4
         with:
-          name: oraxen-plugin
-          path: platforms/paper/build/libs/*.jar
+          name: Oraxen
+          path: core/build/libs/*.jar
